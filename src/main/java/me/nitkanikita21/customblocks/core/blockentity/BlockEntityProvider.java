@@ -10,7 +10,9 @@ import org.joml.Vector3i;
 public interface BlockEntityProvider {
 
     BlockEntityType<?> getBlockEntityType();
-    BlockEntity createBlockEntity(WorldAccessor world, Vector3i pos, BlockState blockState);
+    default BlockEntity createBlockEntity(Vector3i pos, BlockState blockState) {
+        return getBlockEntityType().create(pos, blockState);
+    }
 
     @Nullable
     default <T extends BlockEntity> BlockEntityTicker<T> getTicker(WorldAccessor world, BlockState state, BlockEntityType<T> type) {

@@ -1,18 +1,22 @@
-package me.nitkanikita21.customblocks.core;
+package me.nitkanikita21.customblocks.core.listener;
 
 import de.tr7zw.nbtapi.NBT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.nitkanikita21.customblocks.core.ServerBlockManager;
+import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.block.Block;
 import me.nitkanikita21.customblocks.core.registry.Blocks;
 import me.nitkanikita21.customblocks.core.registry.Registries;
 import me.nitkanikita21.registry.Identifier;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,8 +55,15 @@ public class ItemBlockListener implements Listener {
         Block block = getBlock(item);
         Player player = event.getPlayer();
         WorldAccessor accessor = serverManager.getAccessor(player.getWorld());
+        Location interactionPoint = event.getInteractionPoint();
 
-        accessor.getManager().placeBlock(event.getInteractionPoint().toVector().toVector3i(), block);
+        var bukkitBlock = accessor.getWorld().getBlockAt(interactionPoint);
+        BoundingBox boundingBox = BoundingBox.of(interactionPoint.toBlockLocation().toCenterLocation(), 0.5, 0.5, 0.5);
+        boolean canPlace = !player.getBoundingBox().overlaps(boundingBox);
+
+        if (!bukkitBlock.getType().isSolid() && canPlace) {
+            accessor.getManager().placeBlock(interactionPoint.toVector().toVector3i(), block);
+        }
 
     }
 

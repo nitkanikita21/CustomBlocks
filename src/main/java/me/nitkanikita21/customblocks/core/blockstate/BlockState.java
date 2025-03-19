@@ -1,6 +1,7 @@
 package me.nitkanikita21.customblocks.core.blockstate;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
@@ -19,6 +20,10 @@ public class BlockState implements Cloneable {
 
     public <T> Option<T> getProperty(BlockStateProperty<T> property) {
         return (Option<T>) properties.get(property);
+    }
+
+    public List<BlockStateProperty<?>> getProperties() {
+        return properties.keySet().toList();
     }
 
     public <T> BlockState setProperty(BlockStateProperty<T> property, T value) {

@@ -17,6 +17,6 @@ public class Registries {
     public static <T> Option<Identifier> getIdentifier(Registry<T> registry, T entry) {
         return Iterator.ofAll(registry.getAll())
             .find(regEntry -> regEntry.getValue() == entry)
-            .map(RegistryEntry::getId);
+            .map(RegistryEntry::getIdentifier);
     }
 }

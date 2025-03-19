@@ -33,7 +33,6 @@ public class BukkitTaskScheduler {
         return Bukkit.getServer().getScheduler().runTaskTimer(plugin, runnable, delay, period);
     }
 
-
     public BukkitTask runTaskTimerAsynchronously(Runnable runnable, long delay, long period) {
         return Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(plugin, runnable, delay, period);
     }

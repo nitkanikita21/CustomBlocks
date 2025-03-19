@@ -6,7 +6,7 @@ bstats = "3.0.2"
 vavr = "0.10.4"
 papi = "2.11.6"
 lombok = "1.18.36"
-registry = "1.0.0"
+registry = "1.2.0-SNAPSHOT"
 item-nbt-api = "2.14.1"
 packetevents = "2.7.0"
 
@@ -30,6 +30,7 @@ lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
 registry-core = { module = "me.nitkanikita21:registry-core", version.ref = "registry"}
 registry-configurate = { module = "me.nitkanikita21:registry-configurate", version.ref = "registry"}
+registry-cloud-framework = { module = "me.nitkanikita21:registry-cloud-framework", version.ref = "registry"}
 
 item-nbt-api = {module = "de.tr7zw:item-nbt-api-plugin", version.ref = "item-nbt-api"}
 packetevents = {module = "com.github.retrooper:packetevents-spigot", version.ref="packetevents"}
@@ -48,6 +49,7 @@ cloud-framework = [
 registry = [
     "registry-configurate",
     "registry-core",
+    "registry-cloud-framework",
 ]
 
 [plugins]

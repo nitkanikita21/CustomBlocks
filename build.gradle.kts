@@ -1,5 +1,6 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
+
 plugins {
     `java-library`
     alias(libs.plugins.plugin.yml)
@@ -37,6 +38,7 @@ dependencies {
 
     library(libs.vavr)
     library(libs.bstats.bukkit)
+
     compileOnly(libs.papi)
     compileOnly(libs.paper)
     compileOnly(libs.item.nbt.api)
@@ -84,12 +86,15 @@ paper {
     apiVersion = "1.21"
     authors = listOf("nitkanikita21")
     loader = "me.nitkanikita21.customblocks.PluginLoader"
-    load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
+    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     serverDependencies {
         register("packetevents") {
             joinClasspath = true
         }
         register("NBTAPI") {
+            joinClasspath = true
+        }
+        register("DisplayEntityUtils") {
             joinClasspath = true
         }
     }

@@ -18,10 +18,13 @@ import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.registry.Blocks;
 import me.nitkanikita21.customblocks.core.registry.Registries;
+import me.nitkanikita21.registry.Identifier;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
@@ -30,15 +33,28 @@ import org.joml.Vector3i;
 @RequiredArgsConstructor
 public class Block {
     public static String BLOCK_ITEM_TAG = "BlockItem";
-    final BlockProperties properties;
+    protected final BlockProperties properties;
 
     public @NotNull BlockState getDefaultState() {
         return new BlockState(this, HashMap.empty());
     }
 
-    public void onPlace(BlockState state, WorldAccessor world, Vector3i pos, Player player) {}
+    public void onPlace(BlockState state, WorldAccessor world, Vector3i pos, Player player) {
+        onPlace(state, world, pos);
+    }
+    public void onPlace(BlockState state, WorldAccessor world, Vector3i pos) {}
 
-    public void onRemove(BlockState state, WorldAccessor world, Vector3i pos, Player player) {}
+    public boolean onBreak(BlockState state, WorldAccessor world, Vector3i pos, Player player) {return true;}
+    public void onRemove(BlockState state, WorldAccessor world, Vector3i pos) {}
+
+    public void onInteract(
+        BlockState state,
+        WorldAccessor world,
+        Vector3i pos,
+        Player player,
+        Action action,
+        BlockFace face
+    ) {}
 
     public ItemStack getItemStack(Player player) {
         return getItemStack();
@@ -88,5 +104,8 @@ public class Block {
         );
 
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
+    }
+    public Identifier getIdentifier() {
+        return Registries.getIdentifier(Registries.BLOCKS, this).get();
     }
 }
