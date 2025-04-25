@@ -95,7 +95,6 @@ public class BlockBreakPacketHandler extends AbstractPacketHandler<PacketReceive
                             }
                             case SUCCESS, CONSUME -> {
                                 event.setCancelled(true);
-                                // можна ще вручну показати анімацію або звуки
                                 if (result == ActionResult.CONSUME && player.getGameMode() != GameMode.CREATIVE) {
                                     ItemStack item = player.getInventory().getItemInMainHand();
                                     if (item != null) item.setAmount(item.getAmount() - 1);
@@ -116,7 +115,6 @@ public class BlockBreakPacketHandler extends AbstractPacketHandler<PacketReceive
                     breakingManager.stopBreaking(blockPos, player);
                 }
 
-                // FINISHED_DIGGING — більше не обробляємо, бо прогрес іде через BreakingTask
             }
         });
     }

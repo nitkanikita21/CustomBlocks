@@ -55,7 +55,7 @@ public class BreakingTask implements Runnable {
         showAnimation.accept(sharedProgress.getPos(), sharedProgress.getWorld(), (byte) Math.min(crackStage, 9));
 
         int percent = (int) (sharedProgress.getProgress() * 100);
-        player.sendActionBar(Component.text("Прогрес: " + percent + "%", NamedTextColor.YELLOW));
+        player.sendActionBar(Component.text("Progress: " + Math.min(percent, 100) + "%", NamedTextColor.YELLOW));
 
         if (sharedProgress.isComplete()) {
             completeBreak.accept(sharedProgress.getPos(), player); // останній хто дійшов

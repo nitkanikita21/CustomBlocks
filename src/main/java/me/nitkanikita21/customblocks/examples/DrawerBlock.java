@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.block.ActionResult;
@@ -14,10 +15,7 @@ import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.blockstate.DefaultStateProperties;
 import me.nitkanikita21.customblocks.core.util.Vector3iUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -99,23 +97,51 @@ public class DrawerBlock extends BlockWithEntity {
             return false;
         } else {
             onRemove(state, world, pos);
+
+            DrawerBlockEntity blockEntity = (DrawerBlockEntity) world.getManager().getBlockEntity(pos).get();
+
+            Location centeredLoc = Vector3iUtils.toLocation(world.getWorld(), new Vector3f(pos).add(0.5f, 0.5f, 0.5f));
             world.getWorld().spawnParticle(
                 Particle.BLOCK,
-                Vector3iUtils.toLocation(world.getWorld(), new Vector3f(pos).add(0.5f, 0.5f, 0.5f)),
+                centeredLoc,
                 45,
                 0.25, 0.25, 0.25,
                 Material.BEEHIVE.createBlockData()
             );
 
-//            world.getWorld().
+            splitIntoStacks(blockEntity.getItemStack(), blockEntity.getAmount()).forEach(stack -> {
+                world.getWorld().dropItemNaturally(
+                    centeredLoc,
+                    stack
+                );
+            });
+            world.getWorld().dropItemNaturally(
+                centeredLoc,
+                getItemStack()
+            );
+
+
             return true;
         }
     }
 
+    private List<ItemStack> splitIntoStacks(ItemStack original, int amount) {
+        List<ItemStack> result = List.empty();
+        int maxStack = original.getMaxStackSize();
+
+        while (amount > 0) {
+            int take = Math.min(amount, maxStack);
+            ItemStack stack = original.clone();
+            stack.setAmount(take);
+            result = result.append(stack);
+            amount -= take;
+        }
+
+        return result;
+    }
+
     @Override
     public ActionResult onInteract(BlockState state, WorldAccessor world, Vector3i pos, Player player, Action action, BlockFace face) {
-        System.out.println("INTERACT");
-
         BlockFace blockFace = state.getProperty(DefaultStateProperties.HORIZONTAL_FACING).getOrElse(face);
         if (blockFace != face) return ActionResult.PASS;
 
@@ -131,13 +157,15 @@ public class DrawerBlock extends BlockWithEntity {
             if (blockEntity.getItemStack().isEmpty()) {
                 if (itemInMainHand.isEmpty()) return ActionResult.FAIL;
 
-                inventory.remove(itemInMainHand);
+                inventory.setItemInMainHand(ItemStack.empty());
                 blockEntity.setItemStack(itemInMainHand.clone());
                 blockEntity.setAmount(itemInMainHand.getAmount());
 
             } else if (blockEntity.getItemStack().isSimilar(itemInMainHand)) {
-                blockEntity.setAmount(blockEntity.getAmount() + itemInMainHand.getAmount());
-                inventory.removeItem(itemInMainHand);
+                int amount = itemInMainHand.getAmount();
+
+                blockEntity.setAmount(blockEntity.getAmount() + amount);
+                player.getInventory().setItemInMainHand(null);
             } else {
                 return ActionResult.PASS;
             }
