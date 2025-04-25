@@ -11,16 +11,20 @@ import me.nitkanikita21.customblocks.common.scheduler.BukkitTaskScheduler;
 import me.nitkanikita21.customblocks.core.BlockManager;
 import me.nitkanikita21.customblocks.core.ServerBlockManager;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
+import me.nitkanikita21.customblocks.core.block.ActionResult;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.breaking.BlockBreakSpeedUtil;
 import me.nitkanikita21.customblocks.core.breaking.BlockProgress;
 import me.nitkanikita21.customblocks.core.breaking.BreakingManager;
 import me.nitkanikita21.customblocks.core.breaking.BreakingTask;
 import me.nitkanikita21.customblocks.core.packet.AbstractPacketHandler;
+import me.nitkanikita21.customblocks.core.packet.PacketUtils;
 import me.nitkanikita21.customblocks.core.util.Vector3iUtils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
+import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3i;
 
 public class BlockBreakPacketHandler extends AbstractPacketHandler<PacketReceiveEvent, WrapperPlayClientPlayerDigging> {
@@ -54,37 +58,67 @@ public class BlockBreakPacketHandler extends AbstractPacketHandler<PacketReceive
         if (optState.isEmpty()) return;
         BlockState blockState = optState.get();
 
-        switch (action) {
-            case START_DIGGING -> {
-                if (player.getGameMode() == GameMode.CREATIVE) {
-                    completeBreak(blockPos, player);
-                    return;
+        scheduler.runTask(() -> {
+            switch (action) {
+                case START_DIGGING -> {
+                    if (player.getGameMode() == GameMode.CREATIVE) {
+                        completeBreak(blockPos, player);
+                        return;
+                    }
+
+                    if (!breakingManager.isBreaking(blockPos, player)) {
+                        double hardness = blockState.getOwner().getProperties().getHardness();
+                        BlockProgress progress = breakingManager.getOrCreateProgress(blockPos, hardness, world);
+
+                        BreakingTask task = new BreakingTask(
+                            player,
+                            progress,
+                            scheduler,
+                            this::showBreakAnimation,
+                            this::removeBreakAnimation,
+                            this::completeBreak
+                        );
+
+                        ActionResult result = blockState.getOwner().onInteract(
+                            blockState,
+                            manager.toAccessor(),
+                            blockPos,
+                            player,
+                            Action.LEFT_CLICK_BLOCK,
+                            PacketUtils.toBukkitFace(wrapper.getBlockFace())
+                        );
+
+                        switch (result) {
+                            case FAIL -> {
+                                event.setCancelled(true);
+                                return;
+                            }
+                            case SUCCESS, CONSUME -> {
+                                event.setCancelled(true);
+                                // можна ще вручну показати анімацію або звуки
+                                if (result == ActionResult.CONSUME && player.getGameMode() != GameMode.CREATIVE) {
+                                    ItemStack item = player.getInventory().getItemInMainHand();
+                                    if (item != null) item.setAmount(item.getAmount() - 1);
+                                }
+                                return;
+                            }
+                            case PASS -> {
+                                // нічого, продовжуємо ламати
+                            }
+                        }
+
+                        breakingManager.startBreaking(blockPos, player, hardness, world, task);
+                        BlockBreakSpeedUtil.setBlockBreakSpeed(player, -1);
+                    }
                 }
 
-                if (!breakingManager.isBreaking(blockPos, player)) {
-                    double hardness = blockState.getOwner().getProperties().getHardness();
-                    BlockProgress progress = breakingManager.getOrCreateProgress(blockPos, hardness, world);
-
-                    BreakingTask task = new BreakingTask(
-                        player,
-                        progress,
-                        scheduler,
-                        this::showBreakAnimation,
-                        this::removeBreakAnimation,
-                        this::completeBreak
-                    );
-
-                    breakingManager.startBreaking(blockPos, player, hardness, world, task);
-                    BlockBreakSpeedUtil.setBlockBreakSpeed(player, -1);
+                case CANCELLED_DIGGING -> {
+                    breakingManager.stopBreaking(blockPos, player);
                 }
-            }
 
-            case CANCELLED_DIGGING -> {
-                breakingManager.stopBreaking(blockPos, player);
+                // FINISHED_DIGGING — більше не обробляємо, бо прогрес іде через BreakingTask
             }
-
-            // FINISHED_DIGGING — більше не обробляємо, бо прогрес іде через BreakingTask
-        }
+        });
     }
 
     private void showBreakAnimation(Vector3i blockPos, World world, byte crackStage) {
