@@ -1,8 +1,10 @@
-package me.nitkanikita21.customblocks.core.defimpl;
+package me.nitkanikita21.customblocks.examples;
 
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
+import io.vavr.control.Option;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
+import me.nitkanikita21.customblocks.core.block.ActionResult;
 import me.nitkanikita21.customblocks.core.block.BlockProperties;
 import me.nitkanikita21.customblocks.core.block.BlockWithEntity;
 import me.nitkanikita21.customblocks.core.blockentity.BlockEntity;
@@ -17,7 +19,6 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.block.data.type.Barrel;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -59,11 +60,17 @@ public class EnderChestBlock extends BlockWithEntity {
     }
 
     @Override
-    public void onInteract(BlockState state, WorldAccessor world, Vector3i pos, Player player, Action action, BlockFace face) {
-        EnderChestBlockEntity blockEntity = (EnderChestBlockEntity) world.getManager().getBlockEntity(pos).get();
-        if(player.getGameMode() == GameMode.CREATIVE && action == Action.LEFT_CLICK_BLOCK)return;
+    public ActionResult onInteract(BlockState state, WorldAccessor world, Vector3i pos, Player player, Action action, BlockFace face) {
+        if (player.getGameMode() == GameMode.CREATIVE || action == Action.LEFT_CLICK_BLOCK) {
+            return ActionResult.PASS;
+        }
 
-        if(player.isSneaking()) {
+        Option<EnderChestBlockEntity> optionalEntity = world.getManager().getBlockEntity(pos).map(e -> (EnderChestBlockEntity) e);
+        if (optionalEntity.isEmpty()) return ActionResult.FAIL;
+
+        EnderChestBlockEntity blockEntity = optionalEntity.get();
+
+        if (player.isSneaking()) {
             Material channel = player.getInventory().getItemInMainHand().getType();
             blockEntity.setChannel(channel);
             player.sendMessage(Component.text("Set channel to " + channel.name()));
@@ -71,7 +78,7 @@ public class EnderChestBlock extends BlockWithEntity {
             blockEntity.openInventory(player);
         }
 
-
+        return ActionResult.SUCCESS;
     }
 
     @Override

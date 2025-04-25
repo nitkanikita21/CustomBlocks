@@ -7,4 +7,8 @@ public interface BlockStateProperty<T> {
     String getName();
     T load(CompoundBinaryTag compound);
     CompoundBinaryTag save(CompoundBinaryTag compound, Object value);
+
+    default boolean validate(Object value) {
+        return true;
+    }
 }

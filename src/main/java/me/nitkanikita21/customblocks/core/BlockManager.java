@@ -4,6 +4,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -14,19 +15,22 @@ import me.nitkanikita21.customblocks.core.blockentity.BlockEntity;
 import me.nitkanikita21.customblocks.core.blockentity.BlockEntityProvider;
 import me.nitkanikita21.customblocks.core.blockentity.BlockTickingRunnable;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
+import me.nitkanikita21.customblocks.core.breaking.BreakingManager;
 import me.nitkanikita21.customblocks.core.listener.BlockEventsListener;
 import me.nitkanikita21.customblocks.core.snapshot.WorldSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Note;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.NoteBlock;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
+
+import java.util.stream.IntStream;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
@@ -38,25 +42,28 @@ public class BlockManager {
     Map<Vector3i, BlockState> blockStates = HashMap.empty();
     Map<Vector3i, BlockEntity> blockEntities = HashMap.empty();
     Map<Vector3i, BukkitTask> tickers = HashMap.empty();
+    @Getter
+    BreakingManager blockBreakingManager = new BreakingManager();
 
-     public BlockManager initialize() {
-         eventRegister.register(new BlockEventsListener(accessor()));
-         return this;
-     }
+    public BlockManager initialize() {
+        eventRegister.register(new BlockEventsListener(toAccessor()));
+        return this;
+    }
 
     public WorldSnapshot getSnapshot() {
         return new WorldSnapshot(blockStates, blockEntities);
     }
+
     public void applySnapshot(WorldSnapshot snapshot) {
         blockStates = snapshot.getBlockStates();
         blockEntities = snapshot.getBlockEntities();
 
         blockStates.forEach((pos, state) -> {
-            if(state.getOwner() instanceof BlockEntityProvider provider) {
+            if (state.getOwner() instanceof BlockEntityProvider provider) {
                 tickers = tickers.put(
                     pos,
                     scheduler.runTaskTimer(
-                        new BlockTickingRunnable<>(pos, accessor(), provider),
+                        new BlockTickingRunnable<>(pos, toAccessor(), provider),
                         0, 0
                     )
                 );
@@ -67,21 +74,43 @@ public class BlockManager {
     public BlockState initializeBlockState(Vector3i pos, @NotNull Block block) {
         BlockState defaultState = block.getDefaultState();
         blockStates = blockStates.put(pos, defaultState);
+
+        Chest b = null;
+
         return defaultState;
     }
 
     public void setBlockState(Vector3i pos, BlockState state) {
         blockStates = blockStates.put(pos, state);
 
+        updateBlockForPlayers(pos, state);
+    }
+
+    public void updateBlockForPlayers(Vector3i pos, BlockState state) {
         for (Player player : world.getPlayers()) {
-            if (player.getLocation().distanceSquared(new Location(world, pos.x, pos.y, pos.z)) < 64 * 64) { // 64 - це радіус завантаження чанків
+            if (player.getLocation().distanceSquared(new Location(world, pos.x, pos.y, pos.z)) < 64 * 64) {
                 state.getOwner().sendBlockPacket(
                     player.getPlayer(),
-                    accessor(),
+                    toAccessor(),
                     pos
                 );
             }
         }
+    }
+    public void updateBlockForPlayers(Vector3i pos) {
+        tryGetBlockState(pos).peek(bs -> updateBlockForPlayers(pos, bs));
+    }
+    public void updateBlocksForPlayersAround(Vector3i pos) {
+        IntStream.rangeClosed(-1, 1).forEach(dx ->
+            IntStream.rangeClosed(-1, 1).forEach(dy ->
+                IntStream.rangeClosed(-1, 1).forEach(dz -> {
+                    Vector3i newPos = pos.add(dx, dy, dz);
+                    tryGetBlockState(newPos).peek(bs ->
+                        updateBlockForPlayers(newPos, bs)
+                    );
+                })
+            )
+        );
     }
 
     public BlockState getBlockState(Vector3i pos) {
@@ -92,15 +121,15 @@ public class BlockManager {
     }
 
     public void destroyBlock(Vector3i pos) {
-         tryGetBlockState(pos).peek(b -> {
-             blockStates = blockStates.remove(pos);
-             blockEntities = blockEntities.remove(pos);
+        tryGetBlockState(pos).peek(b -> {
+            blockStates = blockStates.remove(pos);
+            blockEntities = blockEntities.remove(pos);
 //             tickers = tickers.remove(pos);
-             tickers.get(pos).peek(BukkitTask::cancel);
-             tickers = tickers.remove(pos);
+            tickers.get(pos).peek(BukkitTask::cancel);
+            tickers = tickers.remove(pos);
 
-             world.setType(pos.x, pos.y, pos.z, Material.AIR);
-         });
+            world.setType(pos.x, pos.y, pos.z, Material.AIR);
+        });
     }
 
     public Option<BlockState> tryGetBlockState(Vector3i pos) {
@@ -111,37 +140,40 @@ public class BlockManager {
         return blockEntities.get(pos);
     }
 
-    public void placeBlock(Vector3i pos, @NotNull Block block, @Nullable Player player) {
-        placeBlock(pos, block, block.getDefaultState(), player);
+    public void placeBlock(Vector3i pos, @NotNull Block block, @Nullable Player player,
+                           @Nullable Action action,
+                           @Nullable BlockFace face
+    ) {
+        placeBlock(pos, block, block.getDefaultState(), player, action, face);
     }
 
     public void placeBlock(Vector3i pos, @NotNull Block block) {
-        placeBlock(pos, block, block.getDefaultState(), null);
+        placeBlock(pos, block, block.getDefaultState(), null, null, null);
     }
 
     public void placeBlock(Vector3i pos, @NotNull Block block, @NotNull BlockState state) {
-        placeBlock(pos, block, state, null);
+        placeBlock(pos, block, state, null, null, null);
     }
 
-    public void placeBlock(Vector3i pos, @NotNull Block block, @NotNull BlockState state, @Nullable Player player) {
+    public void placeBlock(
+        Vector3i pos,
+        @NotNull Block block,
+        @NotNull BlockState state,
+        @Nullable Player player,
+        @Nullable Action action,
+        @Nullable BlockFace face
+    ) {
         blockStates = blockStates.put(pos, state);
         org.bukkit.block.Block bukkitBlock = world.getBlockAt(new Location(world, pos.x, pos.y, pos.z));
-        bukkitBlock.setType(Material.NOTE_BLOCK);
-        NoteBlock blockData = (NoteBlock) Material.NOTE_BLOCK.createBlockData();
-        bukkitBlock.setBlockData(blockData);
-        Note note = new Note(1);
+        bukkitBlock.setType(Material.STONE);
 
-        blockData.setNote(note);
+        updateBlocksForPlayersAround(pos);
 
-        if(player != null) {
-            player.sendBlockChange(bukkitBlock.getLocation(), blockData);
-        }
-
-        if(block instanceof BlockEntityProvider provider && !tickers.containsKey(pos)) {
+        if (block instanceof BlockEntityProvider provider && !tickers.containsKey(pos)) {
             tickers = tickers.put(
                 pos,
                 scheduler.runTaskTimer(
-                    new BlockTickingRunnable<>(pos, accessor(), provider),
+                    new BlockTickingRunnable<>(pos, toAccessor(), provider),
                     0, 0
                 )
             );
@@ -153,10 +185,19 @@ public class BlockManager {
                 )
             );
         }
+        if(player != null && action != null && face != null) {
+            block.onPlace(state, toAccessor(), pos, player, action, face);
+        } else {
+            block.onPlace(state, toAccessor(), pos);
+        }
     }
 
-    private WorldAccessor accessor() {
+    public WorldAccessor toAccessor() {
         return new WorldAccessor(world, this);
+    }
+
+    public boolean isCustomBlock(Vector3i pos) {
+        return blockStates.containsKey(pos);
     }
 
 }

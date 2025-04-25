@@ -74,7 +74,7 @@ val debugMode: Boolean = System.getenv("DEBUG")?.toBoolean() ?: false
 }*/
 
 tasks.runServer {
-    minecraftVersion("1.21.1")
+    minecraftVersion("1.21.4")
 
     downloadPlugins {
         modrinth("SimpleItemGenerator", "1.7.2")
@@ -92,9 +92,6 @@ paper {
             joinClasspath = true
         }
         register("NBTAPI") {
-            joinClasspath = true
-        }
-        register("DisplayEntityUtils") {
             joinClasspath = true
         }
     }

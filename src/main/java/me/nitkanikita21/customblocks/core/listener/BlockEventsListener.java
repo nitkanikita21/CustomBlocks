@@ -8,8 +8,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -25,12 +23,12 @@ public class BlockEventsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Action action = event.getAction();
-        if(action != Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK)return;
+        /*Action action = event.getAction();
+        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.LEFT_CLICK_BLOCK) return;
         var bukkitClickedBlock = event.getClickedBlock();
         Vector3i pos = bukkitClickedBlock.getLocation().toVector().toVector3i();
         Option<BlockState> blockStateOption = accessor.getManager().tryGetBlockState(pos);
-        if(blockStateOption.isEmpty())return;
+        if (blockStateOption.isEmpty()) return;
 
         event.setCancelled(true);
         BlockState blockState = blockStateOption.get();
@@ -42,12 +40,14 @@ public class BlockEventsListener implements Listener {
             event.getPlayer(),
             action,
             event.getBlockFace()
-        );
+        );*/
     }
 
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+
+        System.out.println("Block break");
        /* Vector3i pos = event.getBlock().getLocation().toVector().toVector3i();
 
         Option<BlockState> blockStateOption = accessor.getManager().tryGetBlockState(pos);
@@ -67,7 +67,7 @@ public class BlockEventsListener implements Listener {
     public void onBlockDestroy(BlockDestroyEvent event) {
         Vector3i pos = event.getBlock().getLocation().toVector().toVector3i();
         Option<BlockState> blockStateOption = accessor.getManager().tryGetBlockState(pos);
-        if(blockStateOption.isEmpty())return;
+        if (blockStateOption.isEmpty()) return;
 
         event.setCancelled(true);
         BlockState blockState = blockStateOption.get();

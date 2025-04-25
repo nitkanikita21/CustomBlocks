@@ -1,6 +1,5 @@
 package me.nitkanikita21.customblocks.core.blockstate;
 
-import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
@@ -27,6 +26,7 @@ public class BlockState implements Cloneable {
     }
 
     public <T> BlockState setProperty(BlockStateProperty<T> property, T value) {
+        if (!property.validate(value)) return new BlockState(owner, properties);
         return new BlockState(owner, properties.put(property, value));
     }
 

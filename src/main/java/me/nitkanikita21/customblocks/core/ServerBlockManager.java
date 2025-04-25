@@ -7,12 +7,14 @@ import io.vavr.collection.Iterator;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.nitkanikita21.customblocks.Commands;
 import me.nitkanikita21.customblocks.common.EventRegister;
 import me.nitkanikita21.customblocks.common.scheduler.BukkitTaskScheduler;
 import me.nitkanikita21.customblocks.core.listener.ItemBlockListener;
-import me.nitkanikita21.customblocks.core.packet.CustomBlocksPacketListener;
+import me.nitkanikita21.customblocks.core.listener.VanillaCommandListener;
+import me.nitkanikita21.customblocks.core.packet.CustomPacketListener;
 import me.nitkanikita21.customblocks.core.registry.BlockEntityTypes;
 import me.nitkanikita21.customblocks.core.registry.Blocks;
 import me.nitkanikita21.customblocks.core.snapshot.WorldSnapshot;
@@ -38,6 +40,7 @@ public class ServerBlockManager implements Listener {
     private final EventRegister eventRegister;
     Map<World, BlockManager> blockStateManagers;
     private final CommandManager<Source> commandManager;
+    @Getter
     private final BukkitTaskScheduler scheduler;
 
     public ServerBlockManager(Plugin plugin, CommandManager<Source> commandManager) {
@@ -52,18 +55,26 @@ public class ServerBlockManager implements Listener {
         blockStateManagers = Iterator.ofAll(server.getWorlds())
             .toMap(w -> w, this::createBlockManager);
 
-        server.getPluginManager().registerEvents(
+        registerEvents(
+            plugin,
             new ItemBlockListener(this),
-            plugin
+            new VanillaCommandListener(this),
+//            new BlockBreakProgressListener(this, scheduler),
+            this
         );
-        server.getPluginManager().registerEvents(
-            this,
-            plugin
-        );
-        PacketEvents.getAPI().getEventManager().registerListener(new CustomBlocksPacketListener(this, scheduler),
+        PacketEvents.getAPI().getEventManager().registerListener(new CustomPacketListener(this, scheduler),
             PacketListenerPriority.HIGHEST);
         new Commands(this, commandManager);
 
+    }
+
+    private void registerEvents(Plugin plugin, Listener ...listeners) {
+        for (Listener listener : listeners) {
+            server.getPluginManager().registerEvents(
+                listener,
+                plugin
+            );
+        }
     }
 
     public BlockManager getManager(World world) {
@@ -126,5 +137,9 @@ public class ServerBlockManager implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void saveAll() {
+        blockStateManagers.keySet().forEach(this::saveWorld);
     }
 }

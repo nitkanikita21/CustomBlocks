@@ -11,4 +11,6 @@ import net.kyori.adventure.text.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlockProperties {
     Component name;
+    @Builder.Default
+    float hardness = 1f;
 }

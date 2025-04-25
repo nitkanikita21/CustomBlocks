@@ -7,10 +7,12 @@ import me.nitkanikita21.customblocks.core.registry.Registries;
 import me.nitkanikita21.registry.cloud.RegistryEntryValueParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.paper.util.sender.PlayerSource;
 import org.incendo.cloud.paper.util.sender.Source;
+import org.incendo.cloud.parser.standard.IntegerParser;
 
 import static me.nitkanikita21.registry.cloud.RegistryEntryValueParser.registryEntryValueParser;
 
@@ -21,12 +23,19 @@ public class Commands {
             root.literal("test")
                 .senderType(PlayerSource.class)
                 .required("block", registryEntryValueParser(Registries.BLOCKS))
+                .optional("count", IntegerParser.integerParser())
                 .handler(ctx -> {
                     Block block = ctx.get("block");
 
+
+
                     Player source = ctx.sender().source();
+                    ItemStack itemStack = block.getItemStack(source);
+
+                    itemStack.setAmount(ctx.getOrDefault("count", 1));
+
                     source.getInventory()
-                        .addItem(block.getItemStack(source));
+                        .addItem(itemStack);
                 })
         );
 

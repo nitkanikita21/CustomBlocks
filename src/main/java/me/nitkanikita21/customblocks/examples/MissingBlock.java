@@ -1,4 +1,4 @@
-package me.nitkanikita21.customblocks.core.defimpl;
+package me.nitkanikita21.customblocks.examples;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
@@ -7,21 +7,13 @@ import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.block.Block;
 import me.nitkanikita21.customblocks.core.block.BlockProperties;
-import me.nitkanikita21.customblocks.core.block.BlockWithEntity;
-import me.nitkanikita21.customblocks.core.blockentity.BlockEntity;
-import me.nitkanikita21.customblocks.core.blockentity.BlockEntityTicker;
-import me.nitkanikita21.customblocks.core.blockentity.BlockEntityType;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
-import me.nitkanikita21.customblocks.core.blockstate.property.BooleanStateProperty;
-import me.nitkanikita21.customblocks.core.registry.BlockEntityTypes;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
 import java.util.UUID;
@@ -49,7 +41,7 @@ public class MissingBlock extends Block {
 
     @Override
     public WrappedBlockState getClientBlock(BlockState state, WorldAccessor world, Vector3i pos) {
-        return SpigotConversionUtil.fromBukkitBlockData(Material.PURPLE_CONCRETE.createBlockData());
+        return SpigotConversionUtil.fromBukkitBlockData(Material.NOTE_BLOCK.createBlockData());
     }
 
     @Override

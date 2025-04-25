@@ -14,16 +14,18 @@ public class BlockTickingRunnable<T extends BlockEntity> implements Runnable {
 
     @Override
     public void run() {
-        BlockState blockState = accessor.getManager().getBlockState(pos);
-        BlockEntityType<T> blockEntityType = (BlockEntityType<T>) provider.getBlockEntityType();
+        accessor.getManager().tryGetBlockState(pos).peek(blockState -> {
+            BlockEntityType<T> blockEntityType = (BlockEntityType<T>) provider.getBlockEntityType();
 
-        Option.of(provider.getTicker(accessor, blockState, blockEntityType))
-            .peek(t -> t.tick(
-                accessor,
-                pos,
-                blockState,
-                blockEntityType.get(accessor, pos)
-                    .getOrElseThrow(RuntimeException::new)
-            ));
+            Option.of(provider.getTicker(accessor, blockState, blockEntityType))
+                .peek(t -> t.tick(
+                    accessor,
+                    pos,
+                    blockState,
+                    blockEntityType.get(accessor, pos)
+                        .getOrElseThrow(RuntimeException::new)
+                ));
+        });
+
     }
 }

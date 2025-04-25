@@ -36,4 +36,11 @@ public class BukkitTaskScheduler {
     public BukkitTask runTaskTimerAsynchronously(Runnable runnable, long delay, long period) {
         return Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(plugin, runnable, delay, period);
     }
+
+    public void cancelTask(BukkitTask task) {
+        cancelTask(task.getTaskId());
+    }
+    public void cancelTask(int task) {
+        Bukkit.getScheduler().cancelTask(task);
+    }
 }

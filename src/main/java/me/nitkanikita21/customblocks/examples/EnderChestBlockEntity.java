@@ -1,4 +1,4 @@
-package me.nitkanikita21.customblocks.core.defimpl;
+package me.nitkanikita21.customblocks.examples;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
