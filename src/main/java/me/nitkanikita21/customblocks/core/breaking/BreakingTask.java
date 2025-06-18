@@ -2,8 +2,7 @@ package me.nitkanikita21.customblocks.core.breaking;
 
 import lombok.RequiredArgsConstructor;
 import me.nitkanikita21.customblocks.common.scheduler.BukkitTaskScheduler;
-import me.nitkanikita21.customblocks.core.blockstate.BlockState;
-import me.nitkanikita21.customblocks.core.util.TriConsumer;
+import me.nitkanikita21.customblocks.util.TriConsumer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
@@ -13,7 +12,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.joml.Vector3i;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public class BreakingTask implements Runnable {

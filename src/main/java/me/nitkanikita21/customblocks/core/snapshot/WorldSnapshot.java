@@ -12,7 +12,7 @@ import me.nitkanikita21.customblocks.core.blockentity.BlockEntityProvider;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.blockstate.property.BlockStateProperty;
 import me.nitkanikita21.customblocks.core.registry.Registries;
-import me.nitkanikita21.customblocks.core.util.Vector3iNbtUtils;
+import me.nitkanikita21.customblocks.util.Vector3iNbtUtils;
 import me.nitkanikita21.registry.Identifier;
 import net.kyori.adventure.nbt.*;
 import org.joml.Vector3i;

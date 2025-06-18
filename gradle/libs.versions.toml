@@ -3,7 +3,7 @@ sponge-configurate = "4.1.2"
 minecraft = "1.21.4-R0.1-SNAPSHOT"
 cloud-framework = "2.0.0-beta.10"
 bstats = "3.0.2"
-vavr = "0.10.4"
+vavr = "0.10.6"
 papi = "2.11.6"
 lombok = "1.18.36"
 registry = "1.2.0-SNAPSHOT"
@@ -55,4 +55,4 @@ registry = [
 [plugins]
 run-paper = { id = "xyz.jpenilla.run-paper", version = "2.3.1" }
 plugin-yml = { id = "net.minecrell.plugin-yml.paper", version = "0.6.0" }
-
+paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.16"}

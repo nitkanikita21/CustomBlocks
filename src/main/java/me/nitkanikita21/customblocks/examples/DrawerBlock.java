@@ -13,7 +13,8 @@ import me.nitkanikita21.customblocks.core.block.BlockWithEntity;
 import me.nitkanikita21.customblocks.core.blockentity.BlockEntityType;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.blockstate.DefaultStateProperties;
-import me.nitkanikita21.customblocks.core.util.Vector3iUtils;
+import me.nitkanikita21.customblocks.util.PlayerProfileUtils;
+import me.nitkanikita21.customblocks.util.Vector3iUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -34,6 +35,7 @@ import static me.nitkanikita21.customblocks.core.registry.BlockEntityTypes.DRAWE
 
 public class DrawerBlock extends BlockWithEntity {
     private static final String HEAD_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjlkY2U1OWJhNzJmODQ3MzZlMWVhOWMzYjQzZWIxYWFkYzQ5N2IyOTA0YTFjZGEwODk3MjY5MmRjMWI0Y2E3NSJ9fX0=";
+    private static UUID STATIC_UUID;
 
 
     public DrawerBlock() {
@@ -199,7 +201,7 @@ public class DrawerBlock extends BlockWithEntity {
             meta.displayName(properties.getName());
             SkullMeta skullMeta = (SkullMeta) meta;
 
-            PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+            PlayerProfile profile = PlayerProfileUtils.getOrCreateProfile(STATIC_UUID);
             profile.setProperty(new ProfileProperty("textures", HEAD_TEXTURE));
             skullMeta.setPlayerProfile(profile);
             head.setItemMeta(meta);

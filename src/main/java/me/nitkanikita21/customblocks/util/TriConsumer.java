@@ -1,4 +1,4 @@
-package me.nitkanikita21.customblocks.core.util;
+package me.nitkanikita21.customblocks.util;
 
 @FunctionalInterface
 public interface TriConsumer<A, B, C> {

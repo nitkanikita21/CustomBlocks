@@ -4,7 +4,6 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerBlockChange;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
 import io.vavr.control.Option;
 import me.nitkanikita21.customblocks.common.scheduler.BukkitTaskScheduler;
@@ -12,8 +11,6 @@ import me.nitkanikita21.customblocks.core.ServerBlockManager;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.packet.AbstractPacketHandler;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.joml.Vector3i;
@@ -32,6 +29,8 @@ public class ChunkDataPacketHandler extends AbstractPacketHandler<PacketSendEven
 
     @Override
     public void handle(PacketSendEvent event, WrapperPlayServerChunkData wrapper) {
+//        PluginBootstrap.printIdMapper();
+
         int chunkX = wrapper.getColumn().getX();
         int chunkZ = wrapper.getColumn().getZ();
 
@@ -59,6 +58,9 @@ public class ChunkDataPacketHandler extends AbstractPacketHandler<PacketSendEven
                             WrappedBlockState clientBlock = bs.getOwner().getClientBlock(bs, accessor, vector3i, player);
                             chunk.set(dx, dy, dz, clientBlock);
                         });
+
+                        chunk.get(dx, dy, dz);
+//                        System.out.println(chunk.get(dx, dy, dz).getType());
 
 
 //                                manager.getScheduler().runTaskLater(() -> world.setType(globalX, globalY, globalZ, Material.RED_WOOL), 20*5);

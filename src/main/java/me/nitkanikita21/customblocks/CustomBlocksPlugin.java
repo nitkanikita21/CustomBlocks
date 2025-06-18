@@ -27,6 +27,7 @@ public class CustomBlocksPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         initCommandManager();
         RegistryCloudFrameworkIntegration.initializePaper(commandManager);
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
@@ -36,6 +37,7 @@ public class CustomBlocksPlugin extends JavaPlugin {
 
         serverBlockManager = new ServerBlockManager(this, commandManager);
     }
+
 
     private void initConfigs(String... configs) {
         List.ofAll(Arrays.stream(configs)).forEach(config -> {

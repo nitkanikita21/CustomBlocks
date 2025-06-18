@@ -1,10 +1,12 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 
 plugins {
     `java-library`
     alias(libs.plugins.plugin.yml)
     alias(libs.plugins.run.paper)
+//    alias(libs.plugins.paperweight.userdev)
     idea
 }
 
@@ -39,18 +41,15 @@ dependencies {
     library(libs.vavr)
     library(libs.bstats.bukkit)
 
-    compileOnly(libs.papi)
     compileOnly(libs.paper)
+//    paperweight.paperDevBundle(libs.versions.minecraft)
+
+
+    compileOnly(libs.papi)
     compileOnly(libs.item.nbt.api)
     compileOnly(libs.packetevents)
 }
 
-idea {
-    module {
-        sourceDirs = sourceDirs + file("src/main/antlr")
-        generatedSourceDirs = generatedSourceDirs + file("build/generated-src/antlr/java")
-    }
-}
 
 java {
     withSourcesJar()
@@ -60,6 +59,9 @@ java {
 }
 
 val debugMode: Boolean = System.getenv("DEBUG")?.toBoolean() ?: false
+
+//paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
+
 
 /*tasks.shadowJar {
     val libsPackage = "${project.group}.${project.name.lowercase()}.libs"
@@ -95,6 +97,7 @@ paper {
             joinClasspath = true
         }
     }
+
     generateLibrariesJson = true
 }
 

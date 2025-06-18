@@ -2,10 +2,12 @@ package me.nitkanikita21.customblocks.core.listener;
 
 import de.tr7zw.nbtapi.NBT;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
+import io.papermc.paper.event.player.PlayerPickItemEvent;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.nitkanikita21.customblocks.core.BlockManager;
 import me.nitkanikita21.customblocks.core.ServerBlockManager;
 import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.block.ActionResult;
@@ -53,6 +55,33 @@ public class ItemBlockListener implements Listener {
             })
             .getOrElse(() -> Blocks.NOT_FOUND);
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerPickItem(PlayerPickItemEvent event) {
+        Player player = event.getPlayer();
+
+        org.bukkit.block.Block targetBukkitBlock = player.getTargetBlockExact(5);
+
+        BlockManager manager = serverManager.getManager(player.getWorld());
+
+        manager.tryGetBlockState(targetBukkitBlock.getLocation().toVector().toVector3i()).peek(bs -> {
+           event.setCancelled(true);
+
+            ItemStack itemStack = bs.getOwner().getItemStack(player);
+
+            int firstSlot = player.getInventory().first(itemStack);
+
+            if(firstSlot > 0) {
+                event.setSourceSlot(firstSlot);
+            } else {
+                player.getInventory().addItem(itemStack);
+
+                int slot = player.getInventory().first(itemStack);
+                event.setSourceSlot(slot);
+            }
+        });
+    }
+
 
     @EventHandler
     public void onUse(PlayerInteractEvent event) {
@@ -165,11 +194,17 @@ public class ItemBlockListener implements Listener {
             5
         );
 
+        if(!canPlace) {
+            event.setCancelled(true);
+        }
+
         if (bukkitBlock.isReplaceable() && canPlace) {
             event.setCancelled(true);
             accessor.getManager().placeBlock(interactionPoint.toVector().toVector3i(), block, player, event.getAction(), event.getBlockFace());
             if (player.getGameMode() != GameMode.CREATIVE) item.setAmount(item.getAmount() - 1);
         }
+
+
 
     }
 

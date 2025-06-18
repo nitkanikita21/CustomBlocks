@@ -1,12 +1,15 @@
 package me.nitkanikita21.customblocks.core.listener;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.nitkanikita21.customblocks.core.ServerBlockManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
+@Slf4j
 @RequiredArgsConstructor
 public class VanillaCommandListener implements Listener {
     private final ServerBlockManager serverBlockManager;

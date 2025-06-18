@@ -8,6 +8,7 @@ import me.nitkanikita21.customblocks.core.WorldAccessor;
 import me.nitkanikita21.customblocks.core.block.Block;
 import me.nitkanikita21.customblocks.core.block.BlockProperties;
 import me.nitkanikita21.customblocks.core.blockstate.BlockState;
+import me.nitkanikita21.customblocks.util.PlayerProfileUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class MissingBlock extends Block {
 
     private static final String MISSING_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2M2MDNjNzk1NjAzMTk5OTZkNjM5NDEyOGI0OWZlYzc2NTBjZjg2N2ExZTQ4ZmI4MGM2MDQzZTc3MGRkNzFiZCJ9fX0=";
+    private static UUID STATIC_UUID;
 
     public MissingBlock() {
         super(
@@ -51,7 +53,8 @@ public class MissingBlock extends Block {
             meta.displayName(properties.getName());
             SkullMeta skullMeta = (SkullMeta) meta;
 
-            PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+            STATIC_UUID = UUID.randomUUID();
+            PlayerProfile profile = PlayerProfileUtils.getOrCreateProfile(STATIC_UUID);
             profile.setProperty(new ProfileProperty("textures", MISSING_TEXTURE));
             skullMeta.setPlayerProfile(profile);
             head.setItemMeta(meta);

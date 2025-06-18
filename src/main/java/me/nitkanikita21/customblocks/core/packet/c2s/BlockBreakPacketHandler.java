@@ -19,7 +19,7 @@ import me.nitkanikita21.customblocks.core.breaking.BreakingManager;
 import me.nitkanikita21.customblocks.core.breaking.BreakingTask;
 import me.nitkanikita21.customblocks.core.packet.AbstractPacketHandler;
 import me.nitkanikita21.customblocks.core.packet.PacketUtils;
-import me.nitkanikita21.customblocks.core.util.Vector3iUtils;
+import me.nitkanikita21.customblocks.util.Vector3iUtils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

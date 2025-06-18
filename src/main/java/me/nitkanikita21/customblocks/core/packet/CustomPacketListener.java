@@ -12,6 +12,7 @@ import me.nitkanikita21.customblocks.core.ServerBlockManager;
 import me.nitkanikita21.customblocks.core.packet.c2s.BlockBreakPacketHandler;
 import me.nitkanikita21.customblocks.core.packet.s2c.BlockChangePacketHandler;
 import me.nitkanikita21.customblocks.core.packet.s2c.ChunkDataPacketHandler;
+import me.nitkanikita21.customblocks.core.packet.s2c.ConfigurationServerRegistryDataHandler;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomPacketListener implements PacketListener {
@@ -23,7 +24,8 @@ public class CustomPacketListener implements PacketListener {
 
         s2c(
             new BlockChangePacketHandler(manager, scheduler),
-            new ChunkDataPacketHandler(manager, scheduler)
+            new ChunkDataPacketHandler(manager, scheduler),
+            new ConfigurationServerRegistryDataHandler()
         );
         c2s(
             new BlockBreakPacketHandler(manager, scheduler)

@@ -9,6 +9,7 @@ import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import me.nitkanikita21.customblocks.Commands;
 import me.nitkanikita21.customblocks.common.EventRegister;
 import me.nitkanikita21.customblocks.common.scheduler.BukkitTaskScheduler;
@@ -22,6 +23,7 @@ import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -34,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServerBlockManager implements Listener {
     final Server server;
@@ -59,6 +62,7 @@ public class ServerBlockManager implements Listener {
             plugin,
             new ItemBlockListener(this),
             new VanillaCommandListener(this),
+//            new ChunkLoadListener(this),
 //            new BlockBreakProgressListener(this, scheduler),
             this
         );

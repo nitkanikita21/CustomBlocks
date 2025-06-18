@@ -1,4 +1,4 @@
-package me.nitkanikita21.customblocks.core.util;
+package me.nitkanikita21.customblocks.util;
 
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.joml.Vector3i;
