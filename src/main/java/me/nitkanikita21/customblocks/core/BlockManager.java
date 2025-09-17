@@ -18,6 +18,7 @@ import me.nitkanikita21.customblocks.core.blockstate.BlockState;
 import me.nitkanikita21.customblocks.core.breaking.BreakingManager;
 import me.nitkanikita21.customblocks.core.listener.BlockEventsListener;
 import me.nitkanikita21.customblocks.core.snapshot.WorldSnapshot;
+import me.nitkanikita21.customblocks.core.transfer.HopperTransferTask;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -47,6 +48,9 @@ public class BlockManager {
 
     public BlockManager initialize() {
         eventRegister.register(new BlockEventsListener(toAccessor()));
+
+        scheduler.runTaskTimer(new HopperTransferTask(toAccessor()), 0, 8);
+
         return this;
     }
 
@@ -75,8 +79,6 @@ public class BlockManager {
         BlockState defaultState = block.getDefaultState();
         blockStates = blockStates.put(pos, defaultState);
 
-        Chest b = null;
-
         return defaultState;
     }
 
@@ -97,9 +99,11 @@ public class BlockManager {
             }
         }
     }
+
     public void updateBlockForPlayers(Vector3i pos) {
         tryGetBlockState(pos).peek(bs -> updateBlockForPlayers(pos, bs));
     }
+
     public void updateBlocksForPlayersAround(Vector3i pos) {
         IntStream.rangeClosed(-1, 1).forEach(dx ->
             IntStream.rangeClosed(-1, 1).forEach(dy ->
@@ -138,6 +142,13 @@ public class BlockManager {
 
     public Option<BlockEntity> getBlockEntity(Vector3i pos) {
         return blockEntities.get(pos);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <B extends BlockEntity> Option<B> getBlockEntityCast(Vector3i pos) {
+        return blockEntities.get(pos).toTry()
+            .mapTry(be -> (B) be)
+            .toOption();
     }
 
     public void placeBlock(Vector3i pos, @NotNull Block block, @Nullable Player player,
@@ -185,7 +196,7 @@ public class BlockManager {
                 )
             );
         }
-        if(player != null && action != null && face != null) {
+        if (player != null && action != null && face != null) {
             block.onPlace(state, toAccessor(), pos, player, action, face);
         } else {
             block.onPlace(state, toAccessor(), pos);

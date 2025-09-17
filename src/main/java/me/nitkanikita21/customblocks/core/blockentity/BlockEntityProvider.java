@@ -10,6 +10,7 @@ import org.joml.Vector3i;
 public interface BlockEntityProvider {
 
     BlockEntityType<?> getBlockEntityType();
+
     default BlockEntity createBlockEntity(Vector3i pos, BlockState blockState) {
         return getBlockEntityType().create(pos, blockState);
     }
