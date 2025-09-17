@@ -79,7 +79,7 @@ tasks.runServer {
     minecraftVersion("1.21.4")
 
     downloadPlugins {
-        modrinth("SimpleItemGenerator", "1.7.2")
+        modrinth("SimpleItemGenerator", "1.10.0")
     }
 }
 

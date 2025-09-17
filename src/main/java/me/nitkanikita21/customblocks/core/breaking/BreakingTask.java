@@ -52,7 +52,7 @@ public class BreakingTask implements Runnable {
         int crackStage = (int) (sharedProgress.getProgress() * 10);
         showAnimation.accept(sharedProgress.getPos(), sharedProgress.getWorld(), (byte) Math.min(crackStage, 9));
 
-        int percent = (int) (sharedProgress.getProgress() * 100);
+        int percent = (int)Math.round(sharedProgress.getProgress() * 100d);
         player.sendActionBar(Component.text("Progress: " + Math.min(percent, 100) + "%", NamedTextColor.YELLOW));
 
         if (sharedProgress.isComplete()) {
